@@ -1,18 +1,21 @@
 #!/bin/sh 
-echo Tapez votre recherche #demande un mot-clé à l'utilisateur
-read key    
-mkdir $key #crée un dossier du nom du mot-clé
-cd $key #se place dans un dossier
-wget https://www.pexels.com/search/$key.html #va télécharger les photos sur le site internet
 
-grep 'src=\"[^"]*.jpe*g' $key.html >sortie #récupère les liens des photos dans la page html
+#Interface utilisateur
+echo Tapez votre recherche
+read key
 
-sed 's/.*src=\"\([^"]*.jpe*g\).*/\1/' sortie >album #"nettoie" les liens pour permettre le téléchargement
+#Création d'un dossier qui va contenir les photos à télécharger
+mkdir $key
+cd $key
+wget https://www.pexels.com/search/$key.html
 
-wget -i album #va télécharger les photos
+#Récupération et nettoyage des liens des photos à télécharger depuis la page html
+grep 'src=\"[^"]*.jpe*g' $key.html >sortie
+sed 's/.*src=\"\([^"]*.jpe*g\).*/\1/' sortie >album
 
-mogrify -resize 800x600! *.jp*g #redimensionne les photos en 800x600 et écrase les originales
-
-convert *.jp*g album$key.pdf #récupère les photos et en fait un pdf
+#Téléchargement, redimensionnement des photos et création pdf
+wget -i album
+mogrify -resize 800x600! *.jp*g
+convert *.jp*g album$key.pdf
 
 
